@@ -131,4 +131,79 @@ struct MyList{
 
         cout << "}" << endl;
     }
+
+
+    MyList<T> Union(MyList<T>& otherSet) {
+        MyList<T> resultSet;
+
+        Node<T>* current = head;
+        while (current != nullptr){
+            resultSet.Insert(current->data);
+            current = current->next;
+        }
+        Node<T>* currentOther = otherSet.head;
+        while (currentOther != nullptr){
+            resultSet.Insert(currentOther->data);
+            currentOther = currentOther->next;
+
+        }
+
+        return resultSet;
+    }
+
+    MyList<T> Intersection(MyList<T>& otherSet){
+        MyList<T> resultSet;
+        Node<T>* current = head;
+
+        while (current != nullptr){
+            if (otherSet.Search(current->data) == true){
+                resultSet.Insert(current->data);
+                current = current->next;
+            }
+
+            else{
+                current = current->next;
+            }
+        }
+
+        return resultSet;
+    }
+
+    MyList<T> Difference(MyList<T>& otherSet){
+        MyList<T> resultSet;
+        Node<T>* current = head;
+
+        while (current != nullptr){
+            if (otherSet.Search(current->data) == true){
+                current = current->next;
+            }
+
+            else{
+                resultSet.Insert(current->data);
+                current = current->next;
+            }
+        }
+
+        return resultSet;
+    }
+
+    bool IsSubset (MyList<T>& otherSet){
+        Node<T>* currentOther = otherSet.head;
+
+        while (currentOther != nullptr){
+            if (Search(currentOther->data) == false){
+                return false;
+            }
+
+            currentOther = currentOther->next;
+        }
+
+        return true;
+    }
+
+    MyList<T> SymmetricDifference (MyList<T>& otherSet){
+        MyList<T> d1 = Difference(otherSet);
+        MyList<T> d2 = otherSet.Difference(*this);
+        return d1.Union(d2);
+    }
 };
