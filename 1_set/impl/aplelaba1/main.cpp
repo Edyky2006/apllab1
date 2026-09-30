@@ -1,4 +1,6 @@
 #include <iostream>
+#include <chrono>
+#include <cstdlib>
 
 
 using namespace std;
@@ -207,3 +209,129 @@ struct MyList{
         return d1.Union(d2);
     }
 };
+
+int main() {
+    MyList<int> setA;
+    setA.Insert(10);
+    setA.Insert(20);
+    setA.Insert(30);
+    setA.Insert(40);
+
+    MyList<int> setB;
+    setB.Insert(30);
+    setB.Insert(40);
+    setB.Insert(50);
+    setB.Insert(60);
+
+    cout << "Set A: "; setA.Print();
+    cout << "Set B: "; setB.Print();
+    cout << "-----------------------\n";
+
+    cout << "Union (A U B): ";
+    MyList<int> u = setA.Union(setB);
+    u.Print();
+
+    cout << "Intersection (A & B): ";
+    MyList<int> inter = setA.Intersection(setB);
+    inter.Print();
+
+    cout << "Difference (A \ B): ";
+    MyList<int> diff = setA.Difference(setB);
+    diff.Print();
+
+    cout << "Symmetric Diff (A △ B): ";
+    MyList<int> symDiff = setA.SymmetricDifference(setB);
+    symDiff.Print();
+
+    cout << "-----------------------\n";
+
+    MyList<int> subSet;
+    subSet.Insert(50);
+    subSet.Insert(30);
+    cout << "Set subSet: "; subSet.Print();
+
+    cout << "Is subSet a subset of A? : " << (setA.IsSubset(subSet) ? "Yes" : "No") << endl;
+    cout << "Is B a subset of A?      : " << (setA.IsSubset(setB) ? "Yes" : "No") << endl;
+
+     cout << "|________________________________|" << endl;
+
+    int setSize = 2500;
+    int experimentsCount = 1000;
+
+    long long totalDuration = 0;
+
+    for (int i = 0; i < experimentsCount; i++){
+        MyList<int> setA;
+        MyList<int> setB;
+
+        for (int j = 0; j < setSize; j++){
+            setA.Insert(rand() % 10000);
+            setB.Insert(rand() % 10000);
+        }
+
+        auto start = chrono::high_resolution_clock::now();
+
+        MyList<int> result = setA.Union(setB);
+
+        auto end = chrono::high_resolution_clock::now();
+
+        totalDuration += chrono::duration_cast<chrono::microseconds>(end - start).count();
+    }
+
+    long long averageTime = totalDuration / experimentsCount;
+    cout << "--- Time Test: Union (Size: " << setSize << ") ---" << endl;
+    cout << averageTime << " microseconds" << endl;
+
+
+
+    cout << "|________________________________|" << endl;
+    int setSize1 = 2500;
+    int experimentsCount1 = 1000;
+
+    long long totalTimeFound = 0;
+    long long totalTimeNotFound = 0;
+
+    for (int i = 0; i < experimentsCount1; i++) {
+        MyList<int> mySet;
+        int targetFound = -1;
+        int targetNotFound = -999;
+
+        for (int j = 0; j < setSize1; j++) {
+            int randomValue = rand() % 10000;
+            mySet.Insert(randomValue);
+
+            if (j == setSize1 / 2) {
+                targetFound = randomValue;
+            }
+        }
+
+        auto start1 = chrono::high_resolution_clock::now();
+
+        bool dummy1;
+        for(int k = 0; k < 1000; k++) {
+            dummy1 = mySet.Search(targetFound);
+        }
+
+        auto end1 = chrono::high_resolution_clock::now();
+        totalTimeFound += chrono::duration_cast<chrono::nanoseconds>(end1 - start1).count();
+
+        auto start2 = chrono::high_resolution_clock::now();
+
+        bool dummy2;
+        for(int k = 0; k < 1000; k++) {
+            dummy2 = mySet.Search(targetNotFound);
+        }
+
+        auto end2 = chrono::high_resolution_clock::now();
+        totalTimeNotFound += chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count();
+    }
+
+    long long averageFound = totalTimeFound / (experimentsCount * 1000);
+    long long averageNotFound = totalTimeNotFound / (experimentsCount * 1000);
+
+    cout << "--- Time Test: SEARCH (Size: " << setSize1 << ") ---" << endl;
+    cout << "Average time (Element FOUND)     : " << averageFound << " ns." << endl;
+    cout << "Average time (Element NOT FOUND) : " << averageNotFound << " ns." << endl;
+
+    return 0;
+}
