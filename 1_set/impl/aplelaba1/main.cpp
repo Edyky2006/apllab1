@@ -255,7 +255,7 @@ int main() {
 
      cout << "|________________________________|" << endl;
 
-    int setSize = 2500;
+    int setSize = 500;
     int experimentsCount = 1000;
 
     long long totalDuration = 0;
@@ -285,7 +285,7 @@ int main() {
 
 
     cout << "|________________________________|" << endl;
-    int setSize1 = 2500;
+    int setSize1 = 500;
     int experimentsCount1 = 1000;
 
     long long totalTimeFound = 0;
