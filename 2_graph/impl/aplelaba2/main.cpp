@@ -69,6 +69,19 @@ public:
         delete[] begList;
     }
 
+
+    void Print() {
+        for (int i = 1; i <= numVersh; i++) {
+            cout << "Vertex " << i << ": ";
+            Edge* current = begList[i];
+            while (current != nullptr) {
+                cout << "-> " << current->dest << " (weight " << current->weight << ") ";
+                current = current->next;
+            }
+            cout << endl;
+        }
+    }
+
     virtual void AddEdge(int src, int dest, int weight = 1) = 0;
     virtual void RemoveEdge(int src, int dest) = 0;
     virtual void AddVertex() = 0;
@@ -103,33 +116,65 @@ public:
         RemoveNode(dest, src);
     }
 
-void AddVertex() override{
-        numVersh++;
+    void AddVertex() override{
+            numVersh++;
 
+            Edge** newList = new Edge*[numVersh + 1];
+
+            for (int i = 1; i < numVersh; i++) {
+                newList[i] = begList[i];
+            }
+
+            newList[numVersh] = nullptr;
+
+            delete[] begList;
+
+            begList = newList;
+        }
+
+    void RemoveVertex(int v) override {
+        if (v < 1 || v > numVersh) {
+            cout << "Wrong vertex number" << endl;
+            return;
+        }
+
+        Edge* current = begList[v];
+        while (current != nullptr) {
+            Edge* nextNode = current->next;
+            delete current;
+            current = nextNode;
+        }
+        begList[v] = nullptr;
+
+        for (int i = 1; i <= numVersh; i++) {
+            if (i != v) {
+                RemoveNode(i, v);
+            }
+        }
+
+        for (int i = 1; i <= numVersh; i++) {
+            Edge* temp = begList[i];
+            while (temp != nullptr) {
+                if (temp->dest > v) {
+                    temp->dest--;
+                }
+                temp = temp->next;
+            }
+        }
+
+        numVersh--;
         Edge** newList = new Edge*[numVersh + 1];
 
-        for (int i = 1; i < numVersh; i++) {
-            newList[i] = begList[i];
+        for (int i = 1, j = 1; i <= numVersh + 1; i++) {
+            if (i == v) continue;
+            newList[j] = begList[i];
+            j++;
         }
-
-        newList[numVersh] = nullptr;
 
         delete[] begList;
-
         begList = newList;
-    }    void RemoveVertex(int v) override{}
-
-    void Print() {
-        for (int i = 1; i <= numVersh; i++) {
-            cout << "Vertex " << i << ": ";
-            Edge* current = begList[i];
-            while (current != nullptr) {
-                cout << "-> " << current->dest << " (weight " << current->weight << ") ";
-                current = current->next;
-            }
-            cout << endl;
-        }
     }
+
 };
 
 class DirectedGraph : public Graph {
@@ -155,13 +200,77 @@ public:
         RemoveNode(src, dest);
     }
 
-    void AddVertex() override {}
-    void RemoveVertex(int v) override {}
+        void AddVertex() override{
+            numVersh++;
+
+            Edge** newList = new Edge*[numVersh + 1];
+
+            for (int i = 1; i < numVersh; i++) {
+                newList[i] = begList[i];
+            }
+
+            newList[numVersh] = nullptr;
+
+            delete[] begList;
+
+            begList = newList;
+        }
+
+    void RemoveVertex(int v) override {
+        if (v < 1 || v > numVersh) {
+            cout << "Wrong vertex number" << endl;
+            return;
+        }
+
+        Edge* current = begList[v];
+        while (current != nullptr) {
+            Edge* nextNode = current->next;
+            delete current;
+            current = nextNode;
+        }
+        begList[v] = nullptr;
+
+        for (int i = 1; i <= numVersh; i++) {
+            if (i != v) {
+                RemoveNode(i, v);
+            }
+        }
+
+        for (int i = 1; i <= numVersh; i++) {
+            Edge* temp = begList[i];
+            while (temp != nullptr) {
+                if (temp->dest > v) {
+                    temp->dest--;
+                }
+                temp = temp->next;
+            }
+        }
+
+        numVersh--;
+        Edge** newList = new Edge*[numVersh + 1];
+
+        for (int i = 1, j = 1; i <= numVersh + 1; i++) {
+            if (i == v) continue;
+            newList[j] = begList[i];
+            j++;
+        }
+
+        delete[] begList;
+        begList = newList;
+    }
 };
 
 int main() {
-    UndirectedGraph g(4);
+    DirectedGraph drg(4);
+    cout << "--- Graph without edges ---" << endl;
+    drg.Print();
+    drg.AddEdge(1, 2);
+    drg.AddEdge(1, 3);
+    drg.AddEdge(2, 4);
+    cout << "--- Directed graph after adding edges ---" << endl;
+    drg.Print();
 
+    UndirectedGraph g(4);
     g.AddEdge(1, 2);
     g.AddEdge(1, 3, 5);
     g.AddEdge(2, 4);
@@ -173,9 +282,13 @@ int main() {
     g.RemoveEdge(1, 2);
     g.Print();
 
-    cout << "\n--- Adding a new vertex (Point 5) ---" << endl;
+    cout << "\n--- Adding a new vertex and then adding a new edge between 5 and 1 ---" << endl;
     g.AddVertex();
     g.AddEdge(5, 1);
+    g.Print();
+
+    cout << "\n--- Deleting Vertex 5 ---" << endl;
+    g.RemoveVertex(5);
     g.Print();
 
     return 0;
