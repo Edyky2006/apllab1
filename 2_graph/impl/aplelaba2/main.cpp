@@ -69,6 +69,78 @@ public:
         delete[] begList;
     }
 
+    int** ConvertToMatrix() {
+        int** matrix = new int*[numVersh + 1];
+        for (int i = 1; i <= numVersh; i++) {
+            matrix[i] = new int[numVersh + 1];
+
+            for (int j = 1; j <= numVersh; j++) {
+                matrix[i][j] = 0;
+            }
+        }
+
+        for (int i = 1; i <= numVersh; i++) {
+            Edge* current = begList[i];
+            while (current != nullptr) {
+                matrix[i][current->dest] = current->weight;
+                current = current->next;
+            }
+        }
+
+        return matrix;
+    }
+
+    void ConvertFromMatrix(int** matrix, int size) {
+        for (int i = 1; i <= numVersh; i++) {
+            Edge* current = begList[i];
+            while (current != nullptr) {
+                Edge* nextNode = current->next;
+                delete current;
+                current = nextNode;
+            }
+        }
+        delete[] begList;
+
+        numVersh = size;
+        begList = new Edge*[numVersh + 1];
+        for (int i = 1; i <= numVersh; i++) {
+            begList[i] = nullptr;
+        }
+
+        for (int i = 1; i <= numVersh; i++) {
+            for (int j = numVersh; j >= 1; j--) {
+                if (matrix[i][j] != 0) {
+                    Edge* newEdge = new Edge(j, matrix[i][j]);
+                    newEdge->next = begList[i];
+                    begList[i] = newEdge;
+                }
+            }
+        }
+    }
+
+    void PrintMatrix(int** matrix) {
+        cout << "   ";
+        for (int i = 1; i <= numVersh; i++) cout << i << " ";
+        cout << "\n  ";
+        for (int i = 1; i <= numVersh; i++) cout << "--";
+        cout << "\n";
+
+        for (int i = 1; i <= numVersh; i++) {
+            cout << i << " |";
+            for (int j = 1; j <= numVersh; j++) {
+                cout << matrix[i][j] << " ";
+            }
+            cout << endl;
+        }
+    }
+
+    void DeleteMatrix(int** matrix) {
+        for (int i = 1; i <= numVersh; i++) {
+            delete[] matrix[i];
+        }
+        delete[] matrix;
+    }
+
 
     void Print() {
         for (int i = 1; i <= numVersh; i++) {
@@ -290,6 +362,17 @@ int main() {
     cout << "\n--- Deleting Vertex 5 ---" << endl;
     g.RemoveVertex(5);
     g.Print();
+
+    cout << "\n--- Converting to Matrix ---" << endl;
+    int** myMatrix = g.ConvertToMatrix();
+    g.PrintMatrix(myMatrix);
+
+    cout << "\n--- Converting from Matrix ---" << endl;
+    UndirectedGraph g2(1);
+    g2.ConvertFromMatrix(myMatrix, 4);
+    g2.Print();
+
+    g.DeleteMatrix(myMatrix);
 
     return 0;
 }
