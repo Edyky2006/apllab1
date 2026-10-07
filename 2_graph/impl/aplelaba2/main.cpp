@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -247,6 +249,35 @@ public:
         begList = newList;
     }
 
+     void GenerateErdosRenyi(int n, double p, int minWeight = 1, int maxWeight = 1) {
+        for (int i = 1; i <= numVersh; i++) {
+            Edge* current = begList[i];
+            while (current != nullptr) {
+                Edge* nextNode = current->next;
+                delete current;
+                current = nextNode;
+            }
+        }
+        delete[] begList;
+
+        numVersh = n;
+        begList = new Edge*[numVersh + 1];
+        for (int i = 1; i <= numVersh; i++) {
+            begList[i] = nullptr;
+        }
+
+        for (int i = 1; i <= numVersh; i++) {
+            for (int j = i + 1; j <= numVersh; j++) {
+                double randProb = (double)rand() / RAND_MAX;
+
+                if (randProb <= p) {
+                    int weight = minWeight + rand() % (maxWeight - minWeight + 1);
+                    AddEdge(i, j, weight);
+                }
+            }
+        }
+    }
+
 };
 
 class DirectedGraph : public Graph {
@@ -272,21 +303,21 @@ public:
         RemoveNode(src, dest);
     }
 
-        void AddVertex() override{
-            numVersh++;
+    void AddVertex() override{
+        numVersh++;
 
-            Edge** newList = new Edge*[numVersh + 1];
+        Edge** newList = new Edge*[numVersh + 1];
 
-            for (int i = 1; i < numVersh; i++) {
-                newList[i] = begList[i];
-            }
-
-            newList[numVersh] = nullptr;
-
-            delete[] begList;
-
-            begList = newList;
+        for (int i = 1; i < numVersh; i++) {
+            newList[i] = begList[i];
         }
+
+        newList[numVersh] = nullptr;
+
+        delete[] begList;
+
+        begList = newList;
+    }
 
     void RemoveVertex(int v) override {
         if (v < 1 || v > numVersh) {
@@ -373,6 +404,14 @@ int main() {
     g2.Print();
 
     g.DeleteMatrix(myMatrix);
+
+
+    srand(time(NULL));
+
+    cout << "\n=== Randomizer ===" << endl;
+    UndirectedGraph randomGraph(1);
+    randomGraph.GenerateErdosRenyi(6, 0.4, 10, 50);
+    randomGraph.Print();
 
     return 0;
 }
